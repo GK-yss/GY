@@ -1422,13 +1422,13 @@ function displayQueueStatus(bookings, date) {
     lastQueueData = bookings;
 }
 
-// Shop Status
+// Shop Status (Client Side Only)
 function loadShopStatus() {
     apiCall('getShopStatus', {}, (res) => {
         if (res.status === 'success') {
             shopStatus = res.data;
             updateShopStatusUI();
-            updateAdminShopStatusUI();
+            // Remove the call to updateAdminShopStatusUI as it's now handled by React
         }
     });
 }
@@ -1438,39 +1438,21 @@ function updateShopStatusUI() {
     const openDiv = document.getElementById('shopStatusOpen');
     const closedDiv = document.getElementById('shopStatusClosed');
     
-    if (badge) {
-        badge.classList.remove('hidden');
-        if (shopStatus.isOpen) { openDiv.classList.remove('hidden'); closedDiv.classList.add('hidden'); }
-        else { openDiv.classList.add('hidden'); closedDiv.classList.remove('hidden'); }
-    }
-}
-
-function toggleShopStatus() {
-    const toggle = document.getElementById('shopStatusToggle');
-    const newStatus = toggle.checked;
-    apiCall('setShopStatus', { isOpen: newStatus }, (res) => {
-        if (res.status === 'success') {
-            shopStatus.isOpen = newStatus;
-            updateAdminShopStatusUI();
-            updateShopStatusUI();
-            Swal.fire({ icon: 'success', title: newStatus ? 'เปิดรับจองแล้ว' : 'ปิดรับจองแล้ว', timer: 1500, showConfirmButton: false });
-        }
-    });
-}
-
-function updateAdminShopStatusUI() {
-    const badge = document.getElementById('shopStatusAdminBadge');
-    const toggle = document.getElementById('shopStatusToggle');
+    if (!badge || !openDiv || !closedDiv) return; // Safety check
     
-    if (shopStatus.isOpen) {
-        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-600';
-        badge.innerHTML = '<i class="fas fa-check-circle mr-1"></i> เปิดรับจอง';
-    } else {
-        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600';
-        badge.innerHTML = '<i class="fas fa-times-circle mr-1"></i> ปิดรับจอง';
+    badge.classList.remove('hidden');
+    if (shopStatus.isOpen) { 
+        openDiv.classList.remove('hidden'); 
+        closedDiv.classList.add('hidden'); 
+    } else { 
+        openDiv.classList.add('hidden'); 
+        closedDiv.classList.remove('hidden'); 
     }
-    if (toggle) toggle.checked = shopStatus.isOpen;
 }
+
+// These functions are now handled inside the AdminDashboard React component
+function toggleShopStatus() { /* Handled by React */ }
+function updateAdminShopStatusUI() { /* Handled by React */ }
 
 function showShopScheduleModal() {
     loadSpecialDates();
